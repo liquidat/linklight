@@ -92,7 +92,7 @@ With that in mind, we can now install the collection `ibm.qradar`. To make sure 
 [student<X>@ansible ansible-files]$ ansible-galaxy collection install ibm.qradar -p ~/.ansible/collections
 Process install dependency map
 Starting collection install process
-Installing 'ibm.qradar:1.2.1' to '/home/rwolters/.ansible/collections/ansible_collections/ibm/qradar'
+Installing 'ibm.qradar:1.2.1' to '/home/student<X>/.ansible/collections/ansible_collections/ibm/qradar'
 ```
 
 Verify that the collection was installed properly:
