@@ -1,0 +1,95 @@
+---
+###############################################################################
+# NOTE: YOU MUST UPDATE THIS EVERY TIME WE UPDATE THE QRADAR AMI
+#
+# This is a limitation of the QRadar installation setup, it is not made to
+# handle ephemeral ip addresses on instance spin up so we have to do post
+# deploy fixes
+#
+###############################################################################
+- name: QRadar Post Instance Deployment Configuration
+  hosts: qradar
+  become: true
+  tasks:
+    - name: Replace all mentions of Instance IP used to create custom AMI
+      replace:
+        path: '{{ item }}'
+        regexp: '172\.16\.233\.181'
+        replace: '{{ private_ip }}'
+      loop:
+        - "/etc/consul/consul.json"
+        - "/etc/consul/zk-consul.json"
+        - "/etc/consul/qregistry.json"
+        - "/etc/hosts"
+        - "/etc/hosts.bak"
+        - "/etc/hosts.default"
+        - "/etc/httpd/conf/httpd.conf"
+        - "/etc/si/install_config/ip"
+        - "/etc/sysconfig/marathon"
+        - "/etc/sysconfig/network"
+        - "/etc/sysconfig/iptables"
+        - "/etc/sysconfig/mesos-master"
+        - "/etc/sysconfig/mesos-agent"
+        - "/etc/syslog-ng/syslog-ng.conf"
+        - "/etc/systemd/system/docker.service.d/10-options.conf"
+        - "/etc/zookeeper/conf/zoo.cfg"
+      notify:
+        - restart qradar
+
+    - name: Replace all mentions of Instance IP in dash notation used to create custom AMI
+      replace:
+        path: '{{ item }}'
+        regexp: '172\-16\-233\-181'
+        replace: '{{ private_ip | regex_replace( "\.", "\-" ) }}'
+      loop:
+        - "/etc/consul/consul.json"
+        - "/etc/consul/zk-consul.json"
+        - "/etc/consul/qregistry.json"
+        - "/etc/hosts"
+        - "/etc/hosts.bak"
+        - "/etc/hosts.default"
+        - "/etc/httpd/conf/httpd.conf"
+        - "/etc/si/install_config/ip"
+        - "/etc/sysconfig/marathon"
+        - "/etc/sysconfig/network"
+        - "/etc/sysconfig/iptables"
+        - "/etc/sysconfig/mesos-master"
+        - "/etc/sysconfig/mesos-agent"
+        - "/etc/syslog-ng/syslog-ng.conf"
+        - "/etc/systemd/system/docker.service.d/10-options.conf"
+        - "/etc/zookeeper/conf/zoo.cfg"
+      notify:
+        - restart qradar
+
+  handlers:
+    - name: stop hostcontext
+      service:
+        name: hostcontext
+        state: stopped
+      listen: restart qradar
+    - name: stop tomcat
+      service:
+        name: tomcat
+        state: stopped
+      listen: restart qradar
+    - name: stop hostservices
+      service:
+        name: hostservices
+        state: stopped
+      listen: restart qradar
+    - name: start hostservices
+      service:
+        name: hostservices
+        state: started
+      listen: restart qradar
+    - name: start tomcat
+      service:
+        name: tomcat
+        state: started
+      listen: restart qradar
+    - name: hostcontext tomcat
+      service:
+        name: hostcontext
+        state: started
+      listen: restart qradar
+
