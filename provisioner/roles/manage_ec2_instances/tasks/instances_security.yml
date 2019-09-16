@@ -132,7 +132,7 @@
       when: snort_output['instance_ids'] is not none
 
     - set_fact:
-        subnet2_eni_name: "checkpoint_gw"
+        subnet2_eni_name: "snort"
 
     - name: Add second network interface to attack simulation node for attack simulation VPC
       include_tasks: security_ec2_eni_include_tasks.yml
