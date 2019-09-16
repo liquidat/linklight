@@ -9,9 +9,9 @@
       Info: "Username that provisioned this-> {{ linklight_user }}"
       Linklight: "This was provisioned through the linklight provisioner"
       Students: "{{student_total}}"
-  register: create_vpc
+  register: create_vpc_one_cidr
   when: (ec2_vpc_id is undefined) and (workshop_type != 'security')
-  until: create_vpc is not failed
+  until: create_vpc_one_cidr is not failed
   retries: 5
 
 # Security workshop needs a second subnet inside the VPC
@@ -27,10 +27,14 @@
       Info: "Username that provisioned this-> {{ linklight_user }}"
       Linklight: "This was provisioned through the linklight provisioner"
       Students: "{{student_total}}"
-  register: create_vpc
+  register: create_vpc_two_cidr
   when: (ec2_vpc_id is undefined) and (workshop_type == 'security')
-  until: create_vpc is not failed
+  until: create_vpc_two_cidr is not failed
   retries: 5
+
+- name: Set the create_vpc fact with the correct VPC info
+  set_fact:
+    create_vpc: "{{ create_vpc_one_cidr if create_vpc_one_cidr is not skipped else create_vpc_two_cidr }}"
 
 - name: Create EC2 security group for VPC named {{ ec2_name_prefix }}-vpc
   ec2_group:
