@@ -10,58 +10,88 @@
 - name: QRadar Post Instance Deployment Configuration
   hosts: qradar
   become: true
+  vars:
+    qradar_config_files_with_ip_addrs:
+      - "/etc/consul/consul.json"
+      - "/etc/consul/zk-consul.json"
+      - "/etc/consul/qregistry.json"
+      - "/etc/hosts"
+      - "/etc/hosts.bak"
+      - "/etc/hosts.default"
+      - "/etc/httpd/conf/httpd.conf"
+      - "/etc/si/install_config/ip"
+      - "/etc/sysconfig/marathon"
+      - "/etc/sysconfig/network"
+      - "/etc/sysconfig/iptables"
+      - "/etc/sysconfig/mesos-master"
+      - "/etc/sysconfig/mesos-agent"
+      - "/etc/syslog-ng/syslog-ng.conf"
+      - "/etc/systemd/system/docker.service.d/10-options.conf"
+      - "/etc/zookeeper/conf/zoo.cfg"
+      - "/opt/qradar/conf/nva.conf"
+      - "/opt/qradar/conf/nva.hostcontext.conf"
+      - "/opt/qradar/conf/iptables.d/nat.post/0_docker_nat"
+      - "/opt/qradar/conf/iptables.d/nat.post/0_docker_infra_nat"
+      - "/opt/qradar/conf/iptables.d/nat.post/0_docker_apps_nat"
+      - "/opt/qradar/conf/iptables.d/nat.post/0_docker_apps_proxy_nat"
+      - "/opt/qradar/conf/nva.conf.bak"
+      - "/opt/qradar/conf/frameworks.properties"
+      - "/opt/qradar/conf/capabilities/hostcapabilities.xml"
+      - "/opt/qradar/conf/capabilities/reported_hostcapabilties.xml"
+      - "/opt/qradar/conf/.ipaddress"
+      - "/opt/qradar/conf/distrib_config.xml"
+      - "/opt/qradar/conf/frameworks.properties.bak"
+      - "/opt/qradar/conf/oauth_server.cache"
+      - "/opt/qradar/conf/dtlspki/certs/10.pem"
+      - "/opt/qradar/conf/dtlspki/172.16.233.181/server/server_ssl.cnf"
+      - "/opt/qradar/conf/dtlspki/index.txt"
+      - "/opt/qradar/conf/install_dump.txt.bak"
+      - "/opt/qradar/conf/install_instructions.txt.bak"
+      - "/opt/qradar/conf/configmetadata.xml"
+      - "/opt/qradar/conf/deployment.xml"
+      - "/opt/qradar/conf/ifmapConfig.xml"
+      - "/opt/qradar/conf/EP.xml"
+      - "/opt/qradar/conf/nva.masterdaemon.masterdaemon.conf"
+      - "/opt/qradar/conf/nva.qflow.qflow0.conf"
+      - "/opt/qradar/conf/syslog-ng.conf"
+      - "/opt/qradar/conf/collectorlist.conf"
+      - "/opt/qradar/dca/dca/init/dca_license/dca_license_settings_user.txt"
+      - "/opt/qradar/dca/dca/init/dca_update/dca_update_settings_user.txt"
   tasks:
     - name: Replace all mentions of Instance IP used to create custom AMI
       replace:
         path: '{{ item }}'
         regexp: '172\.16\.233\.181'
         replace: '{{ private_ip }}'
-      loop:
-        - "/etc/consul/consul.json"
-        - "/etc/consul/zk-consul.json"
-        - "/etc/consul/qregistry.json"
-        - "/etc/hosts"
-        - "/etc/hosts.bak"
-        - "/etc/hosts.default"
-        - "/etc/httpd/conf/httpd.conf"
-        - "/etc/si/install_config/ip"
-        - "/etc/sysconfig/marathon"
-        - "/etc/sysconfig/network"
-        - "/etc/sysconfig/iptables"
-        - "/etc/sysconfig/mesos-master"
-        - "/etc/sysconfig/mesos-agent"
-        - "/etc/syslog-ng/syslog-ng.conf"
-        - "/etc/systemd/system/docker.service.d/10-options.conf"
-        - "/etc/zookeeper/conf/zoo.cfg"
+      loop: "{{ qradar_config_files_with_ip_addrs }}"
       notify:
         - restart qradar
 
     - name: Replace all mentions of Instance IP in dash notation used to create custom AMI
       replace:
         path: '{{ item }}'
-        regexp: '172\-16\-233\-181'
-        replace: '{{ private_ip | regex_replace( "\.", "\-" ) }}'
-      loop:
-        - "/etc/consul/consul.json"
-        - "/etc/consul/zk-consul.json"
-        - "/etc/consul/qregistry.json"
-        - "/etc/hosts"
-        - "/etc/hosts.bak"
-        - "/etc/hosts.default"
-        - "/etc/httpd/conf/httpd.conf"
-        - "/etc/si/install_config/ip"
-        - "/etc/sysconfig/marathon"
-        - "/etc/sysconfig/network"
-        - "/etc/sysconfig/iptables"
-        - "/etc/sysconfig/mesos-master"
-        - "/etc/sysconfig/mesos-agent"
-        - "/etc/syslog-ng/syslog-ng.conf"
-        - "/etc/systemd/system/docker.service.d/10-options.conf"
-        - "/etc/zookeeper/conf/zoo.cfg"
+        regexp: '172-16-233-181'
+        replace: '{{ private_ip | regex_replace( "\.", "-" ) }}'
+      loop: "{{ qradar_config_files_with_ip_addrs }}"
       notify:
         - restart qradar
 
   handlers:
+    - name: restart iptables
+      service:
+        name: iptables
+        state: restarted
+      listen: restart qradar
+    - name: restart httpd
+      service:
+        name: httpd
+        state: restarted
+      listen: restart qradar
+    - name: restart imq
+      service:
+        name: imq
+        state: restarted
+      listen: restart qradar
     - name: stop hostcontext
       service:
         name: hostcontext
@@ -91,5 +121,10 @@
       service:
         name: hostcontext
         state: started
+      listen: restart qradar
+    - name: restart consul
+      service:
+        name: consul
+        state: restarted
       listen: restart qradar
 
