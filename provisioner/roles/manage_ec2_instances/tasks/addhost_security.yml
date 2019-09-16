@@ -72,7 +72,7 @@
         private_ip: "{{item.private_ip_address}}"
         private_ip2: "{{item['network_interfaces'][1]['private_ip_address']}}"
         groups:
-          - attacker
+          - attack
       loop: "{{ attacker_node_facts.instances|flatten(levels=1) }}"
 
 - name: grab facts for Check Point CloudGuard Security Management (SECURITY MODE)
