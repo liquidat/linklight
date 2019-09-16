@@ -57,74 +57,75 @@
       - "/opt/qradar/conf/collectorlist.conf"
       - "/opt/qradar/dca/dca/init/dca_license/dca_license_settings_user.txt"
       - "/opt/qradar/dca/dca/init/dca_update/dca_update_settings_user.txt"
+    qradar_netconf_status_file: "/opt/qradar/workshop_provision_ip_configured"
   tasks:
-    - name: Replace all mentions of Instance IP used to create custom AMI
-      replace:
-        path: '{{ item }}'
-        regexp: '172\.16\.233\.181'
-        replace: '{{ private_ip }}'
-      loop: "{{ qradar_config_files_with_ip_addrs }}"
-      notify:
-        - restart qradar
+    - name: Check if status file exists
+      stat:
+        path: "{{ qradar_netconf_status_file }}"
+      register: st
 
-    - name: Replace all mentions of Instance IP in dash notation used to create custom AMI
-      replace:
-        path: '{{ item }}'
-        regexp: '172-16-233-181'
-        replace: '{{ private_ip | regex_replace( "\.", "-" ) }}'
-      loop: "{{ qradar_config_files_with_ip_addrs }}"
-      notify:
-        - restart qradar
+    - name: Configure IP address if necessary
+      block:
+        - name: stop hostcontext
+          service:
+            name: hostcontext
+            state: stopped
+        - name: stop tomcat
+          service:
+            name: tomcat
+            state: stopped
+        - name: stop hostservices
+          service:
+            name: hostservices
+            state: stopped
+        - name: Replace all mentions of Instance IP used to create custom AMI
+          replace:
+            path: '{{ item }}'
+            regexp: '172\.16\.233\.181'
+            replace: '{{ private_ip }}'
+          loop: "{{ qradar_config_files_with_ip_addrs }}"
+          register: dot_notation
+        - name: Replace all mentions of Instance IP in dash notation used to create custom AMI
+          replace:
+            path: '{{ item }}'
+            regexp: '172-16-233-181'
+            replace: '{{ private_ip | regex_replace( "\.", "-" ) }}'
+          loop: "{{ qradar_config_files_with_ip_addrs }}"
+          register: dash_notation
 
-  handlers:
-    - name: restart iptables
-      service:
-        name: iptables
-        state: restarted
-      listen: restart qradar
-    - name: restart httpd
-      service:
-        name: httpd
-        state: restarted
-      listen: restart qradar
-    - name: restart imq
-      service:
-        name: imq
-        state: restarted
-      listen: restart qradar
-    - name: stop hostcontext
-      service:
-        name: hostcontext
-        state: stopped
-      listen: restart qradar
-    - name: stop tomcat
-      service:
-        name: tomcat
-        state: stopped
-      listen: restart qradar
-    - name: stop hostservices
-      service:
-        name: hostservices
-        state: stopped
-      listen: restart qradar
-    - name: start hostservices
-      service:
-        name: hostservices
-        state: started
-      listen: restart qradar
-    - name: start tomcat
-      service:
-        name: tomcat
-        state: started
-      listen: restart qradar
-    - name: hostcontext tomcat
-      service:
-        name: hostcontext
-        state: started
-      listen: restart qradar
-    - name: restart consul
-      service:
-        name: consul
-        state: restarted
-      listen: restart qradar
+        - name: restart iptables
+          service:
+            name: iptables
+            state: restarted
+        - name: restart httpd
+          service:
+            name: httpd
+            state: restarted
+        - name: restart imq
+          service:
+            name: imq
+            state: restarted
+        - name: start hostservices
+          service:
+            name: hostservices
+            state: started
+        - name: start tomcat
+          service:
+            name: tomcat
+            state: started
+        - name: hostcontext tomcat
+          service:
+            name: hostcontext
+            state: started
+        - name: restart consul
+          service:
+            name: consul
+            state: restarted
+        - name: Create status file
+          file:
+            path: "{{ qradar_netconf_status_file }}"
+            state: touch
+      when:
+        - not st.stat.exists
+
 
