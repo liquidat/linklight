@@ -1,13 +1,13 @@
 ##### FIXME - NEEDS CORRELATION BETWEEN STUDENT ENVS
 - name: Setup eth1 for attack simulator and victim (snort) node
-  hosts: attacker:snort
+  hosts: attack:snort
   become: true
   tasks:
     - import_role:
         name: security_eth1
 
 - name: Setup host route for attack simulator
-  hosts: attacker
+  hosts: attack
   become: true
   tasks:
     - import_role:

@@ -5,7 +5,7 @@ ansible_ssh_pass={{ admin_password }}
 ansible_port={{ ssh_port }}
 {% endif %}
 
-[attacker]
+[attack]
 {% for vm in attacker_node_facts.instances %}
 {% if 'student' + item == vm.tags.Student %}
 attacker ansible_host={{ vm.public_ip_address }} ansible_user={{ vm.tags.username }} private_ip={{ vm.private_ip_address }} private_ip2={{ vm['network_interfaces'][1]['private_ip_address'] }}
