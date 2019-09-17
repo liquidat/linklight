@@ -9,6 +9,11 @@ reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Updat
 # Disable Windows Defender Monitoring
 Set-MpPreference -DisableRealtimeMonitoring $true
 
+# Remove policies stopping us from enabling WinRM
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows\WinRM\Service" /v AllowBasic /f
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows\WinRM\Service" /v AllowUnencryptedTraffic /f
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows\WinRM\Service" /v DisableRunAs /f
+
 # Enable WinRM
 Invoke-WebRequest -Uri https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1 -OutFile C:\ConfigureRemotingForAnsible.ps1
 C:\ConfigureRemotingForAnsible.ps1 -ForceNewSSLCert -EnableCredSSP
