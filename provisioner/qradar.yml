@@ -11,6 +11,7 @@
   hosts: qradar
   become: true
   vars:
+    qradar_old_ami_ip: "172.16.233.181"
     qradar_config_files_with_ip_addrs:
       - "/etc/consul/consul.json"
       - "/etc/consul/zk-consul.json"
@@ -42,7 +43,7 @@
       - "/opt/qradar/conf/frameworks.properties.bak"
       - "/opt/qradar/conf/oauth_server.cache"
       - "/opt/qradar/conf/dtlspki/certs/10.pem"
-      - "/opt/qradar/conf/dtlspki/172.16.233.181/server/server_ssl.cnf"
+      - "/opt/qradar/conf/dtlspki/{{qradar_old_ami_ip}}/server/server_ssl.cnf"
       - "/opt/qradar/conf/dtlspki/index.txt"
       - "/opt/qradar/conf/install_dump.txt.bak"
       - "/opt/qradar/conf/install_instructions.txt.bak"
@@ -87,28 +88,28 @@
         - name: Replace all mentions of Instance IP used to create custom AMI
           replace:
             path: '{{ item }}'
-            regexp: '172\.16\.233\.181'
+            regexp: '{{ qradar_old_ami_ip | regex_replace( "\.", "\.") }}'
             replace: '{{ private_ip }}'
           loop: "{{ qradar_config_files_with_ip_addrs }}"
           register: dot_notation
         - name: Replace all mentions of Instance IP in dash notation used to create custom AMI
           replace:
             path: '{{ item }}'
-            regexp: '172-16-233-181'
+            regexp: '{{ qradar_old_ami_ip | regex_replace( "\.", "-" ) }}'
             replace: '{{ private_ip | regex_replace( "\.", "-" ) }}'
           loop: "{{ qradar_config_files_with_ip_addrs }}"
           register: dash_notation
 
-        - name: check for old dtlspki ssl conf dir
-          stat:
-            path: /opt/qradar/conf/dtlspki/172.16.233.181/
-          register: old_dtlspki_ssl_conf_dir
+        - name: create new dtlskpi ssl conf dir
+          file:
+            path: "/opt/qradar/conf/dtlspki/{{private_ip}}/"
+            state: directory
 
-        - name: move dtlspki ssl conf dir
-          shell: "mv /opt/qradar/conf/dtlspki/172.16.233.181/ /opt/qradar/conf/dtlspki/{{private_ip}}/"
-          args:
-            creates: "/opt/qradar/conf/dtlspki/{{private_ip}}/"
-          when: old_dtlspki_ssl_conf_dir.stat.exists
+        - name: copy old dtlspki ssl conf dir
+          copy:
+            src: "/opt/qradar/conf/dtlspki/{{ qradar_old_ami_ip }}/"
+            dest: "/opt/qradar/conf/dtlspki/{{private_ip}}/"
+            remote_src: yes
 
         - name: restart iptables
           service:
@@ -128,6 +129,8 @@
             - /opt/qradar/bin/fix_deployment_templates.py
             - /opt/qradar/bin/fix_extra_version.sh
             - /opt/qradar/bin/fix_serial.sh
+          environment:
+            NVA_CONF: /opt/qradar/conf/nva.conf
         - name: start hostservices
           service:
             name: hostservices
