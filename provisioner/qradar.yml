@@ -93,6 +93,17 @@
           loop: "{{ qradar_config_files_with_ip_addrs }}"
           register: dash_notation
 
+        - name: check for old dtlspki ssl conf dir
+          stat:
+            path: /opt/qradar/conf/dtlspki/172.16.233.181/
+          register: old_dtlspki_ssl_conf_dir
+
+        - name: move dtlspki ssl conf dir
+          shell: "mv /opt/qradar/conf/dtlspki/172.16.233.181/ /opt/qradar/conf/dtlspki/{{private_ip}}/"
+          args:
+            creates: "/opt/qradar/conf/dtlspki/{{private_ip}}/"
+          when: old_dtlspki_ssl_conf_dir.stat.exists
+
         - name: restart iptables
           service:
             name: iptables
