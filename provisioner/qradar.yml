@@ -37,7 +37,6 @@
       - "/opt/qradar/conf/nva.conf.bak"
       - "/opt/qradar/conf/frameworks.properties"
       - "/opt/qradar/conf/capabilities/hostcapabilities.xml"
-      - "/opt/qradar/conf/capabilities/reported_hostcapabilties.xml"
       - "/opt/qradar/conf/.ipaddress"
       - "/opt/qradar/conf/distrib_config.xml"
       - "/opt/qradar/conf/frameworks.properties.bak"
@@ -57,6 +56,9 @@
       - "/opt/qradar/conf/collectorlist.conf"
       - "/opt/qradar/dca/dca/init/dca_license/dca_license_settings_user.txt"
       - "/opt/qradar/dca/dca/init/dca_update/dca_update_settings_user.txt"
+      - "/store/tmp/distrib_config.xml"
+      - "/root/AUTO_INSTALL_INSTRUCTIONS-last"
+
     qradar_netconf_status_file: "/opt/qradar/workshop_provision_ip_configured"
   tasks:
     - name: Check if status file exists
@@ -78,6 +80,10 @@
           service:
             name: hostservices
             state: stopped
+        - name: Remove reported_hostcapabilities.xml
+          file:
+            path: "/opt/qradar/conf/capabilities/reported_hostcapabilties.xml"
+            state: absent
         - name: Replace all mentions of Instance IP used to create custom AMI
           replace:
             path: '{{ item }}'
@@ -116,6 +122,12 @@
           service:
             name: imq
             state: restarted
+        - name: run fixes
+          shell: "{{ item }}"
+          loop:
+            - /opt/qradar/bin/fix_deployment_templates.py
+            - /opt/qradar/bin/fix_extra_version.sh
+            - /opt/qradar/bin/fix_serial.sh
         - name: start hostservices
           service:
             name: hostservices
@@ -124,7 +136,7 @@
           service:
             name: tomcat
             state: started
-        - name: hostcontext tomcat
+        - name: start hostcontext
           service:
             name: hostcontext
             state: started
@@ -132,6 +144,9 @@
           service:
             name: consul
             state: restarted
+        # discovered from /opt/qradar/bin/qradar_netsetup.py
+        - name: run qradar app upgrades
+          shell: /opt/qradar/bin/upgrade_applications.py
         - name: Create status file
           file:
             path: "{{ qradar_netconf_status_file }}"
