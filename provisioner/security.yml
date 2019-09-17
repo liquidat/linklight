@@ -86,6 +86,11 @@
   roles:
     - role: windows_ws_setup
 
+- name: SETUP WINDOWS WORKSTATION
+  hosts: windows
+  roles:
+    - role: windows_ws_setup
+
 - name: SETUP CHECKPOINT ENVIRONMENT
   hosts: localhost
   become: no
