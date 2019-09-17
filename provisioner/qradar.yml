@@ -85,20 +85,26 @@
           file:
             path: "/opt/qradar/conf/capabilities/reported_hostcapabilties.xml"
             state: absent
+        - name: Remove tomcat working cache dir
+          file:
+            path: "/opt/tomcat85/work/Catalina/localhost/"
+            state: absent
         - name: Replace all mentions of Instance IP used to create custom AMI
           replace:
             path: '{{ item }}'
             regexp: '{{ qradar_old_ami_ip | regex_replace( "\.", "\.") }}'
             replace: '{{ private_ip }}'
           loop: "{{ qradar_config_files_with_ip_addrs }}"
-          register: dot_notation
         - name: Replace all mentions of Instance IP in dash notation used to create custom AMI
           replace:
             path: '{{ item }}'
             regexp: '{{ qradar_old_ami_ip | regex_replace( "\.", "-" ) }}'
             replace: '{{ private_ip | regex_replace( "\.", "-" ) }}'
           loop: "{{ qradar_config_files_with_ip_addrs }}"
-          register: dash_notation
+
+        - name: systemd daemon reload
+          systemd:
+            daemon_reload: yes
 
         - name: create new dtlskpi ssl conf dir
           file:
@@ -111,18 +117,6 @@
             dest: "/opt/qradar/conf/dtlspki/{{private_ip}}/"
             remote_src: yes
 
-        - name: restart iptables
-          service:
-            name: iptables
-            state: restarted
-        - name: restart httpd
-          service:
-            name: httpd
-            state: restarted
-        - name: restart imq
-          service:
-            name: imq
-            state: restarted
         - name: run fixes
           shell: "{{ item }}"
           loop:
@@ -131,6 +125,41 @@
             - /opt/qradar/bin/fix_serial.sh
           environment:
             NVA_CONF: /opt/qradar/conf/nva.conf
+        - name: start postgresql-qrd
+          service:
+            name: postgresql-qrd
+            state: started
+        - name: backup the database
+          shell: 'pg_dump -d qradar -U qradar > ~/qradar_db_dump'
+        - name: Replace all mentions of Instance IP in dot notation database dump
+          replace:
+            path: '~/qradar_db_dump'
+            regexp: '{{ qradar_old_ami_ip | regex_replace( "\.", "\.") }}'
+            replace: '{{ private_ip }}'
+        - name: Replace all mentions of Instance IP in dash notation database dump
+          replace:
+            path: '~/qradar_db_dump'
+            regexp: '{{ qradar_old_ami_ip | regex_replace( "\.", "-" ) }}'
+            replace: '{{ private_ip | regex_replace( "\.", "-" ) }}'
+        - name: drop the database
+          shell: "dropdb -U qradar qradar"
+        - name: create the database
+          shell: "createdb -U qradar qradar"
+        - name: restore the edited database dump
+          shell: "psql -U qradar qradar < ~/qradar_db_dump"
+        - name: stop postgresql-qrd
+          service:
+            name: postgresql-qrd
+            state: stopped
+
+        - name: restart iptables
+          service:
+            name: iptables
+            state: restarted
+        - name: restart imq
+          service:
+            name: imq
+            state: restarted
         - name: start hostservices
           service:
             name: hostservices
@@ -148,8 +177,9 @@
             name: consul
             state: restarted
         # discovered from /opt/qradar/bin/qradar_netsetup.py
-        - name: run qradar app upgrades
-          shell: /opt/qradar/bin/upgrade_applications.py
+        # FIXME FIXME FIXME - doesn't work until we fix the MQ
+        #- name: run qradar app upgrades
+        #  shell: /opt/qradar/bin/upgrade_applications.py
         - name: Create status file
           file:
             path: "{{ qradar_netconf_status_file }}"
