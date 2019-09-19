@@ -81,4 +81,3 @@
   become: yes
   delegate_to: "{{ snort_inst['instances'][0]['tags']['Name'] }}"
   when: (snort_gw_route.changed) or (snort_attacker_route.changed)
-

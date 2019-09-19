@@ -97,6 +97,10 @@
           import_role:
             name: "webservers"
 
+        - name: import webserver attack simulation role
+          import_role:
+            name: "webservers_attack_simulation"
+
 - name: SETUP WINDOWS WORKSTATION
   hosts: windows
   roles:
