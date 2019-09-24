@@ -21,7 +21,7 @@ The Windows workstation can be reached via Remote Desktop Protocol (RDP). We rec
 
 Test the access to the MGMT server now by pointing your RDP client to the `windows-ws` IP in your inventory.
 
-If you do not have a RDP client available or want to test the HTML RDP client, please open the following URL in your browser: `http://<windows-wsIP>/myrtille`. Be sure to replace `<windows-wsIP>` with the IP for the Windows workstation from your inventory. In the login field, only provide the user name and the password: The user name is **Adminimstrator**, the password is **RedHat19!** if not provided otherwise.
+If you do not have a RDP client available or want to test the HTML RDP client, please open the following URL in your browser: `http://<windows-wsIP>/myrtille`. Be sure to replace `<windows-wsIP>` with the IP for the Windows workstation from your inventory. In the login field, only provide the user name and the password: The user name is **Administrator**, the password is **Ansible+Red*Hat19!20** if not provided otherwise.
 
 Upon first login there might be a message about a network interface in a blue bar on the right side. This message can be safely ignored and will disappear as soon as you click anywhere.
 
@@ -152,7 +152,7 @@ Let's start with a task to define the source object:
     source_ip: "{{ hostvars['attacker']['private_ip2'] }}"
     destination_ip: "{{ hostvars['snort']['private_ip2'] }}"
 
-  tasks: 
+  tasks:
     - name: Create source IP host object
       checkpoint_host:
         name: "asa-{{ source_ip }}"
@@ -182,7 +182,7 @@ In the same way we defined the source IP host object, we will now add the destin
     source_ip: "{{ hostvars['attacker']['private_ip2'] }}"
     destination_ip: "{{ hostvars['snort']['private_ip2'] }}"
 
-  tasks: 
+  tasks:
     - name: Create source IP host object
       checkpoint_host:
         name: "asa-{{ source_ip }}"
@@ -207,7 +207,7 @@ Last, we are defining the actual access rule between those two host objects and 
     source_ip: "{{ hostvars['attacker']['private_ip2'] }}"
     destination_ip: "{{ hostvars['snort']['private_ip2'] }}"
 
-  tasks: 
+  tasks:
     - name: Create source IP host object
       checkpoint_host:
         name: "asa-{{ source_ip }}"
@@ -252,7 +252,7 @@ Playbooks are executed using the `ansible-playbook` command on the control node.
 Now you should be ready to run your playbook:
 
 ```bash
-[student<X>@ansible ansible-files]$ ansible-playbook whitelist_attacker.yml 
+[student<X>@ansible ansible-files]$ ansible-playbook whitelist_attacker.yml
 
 PLAY [Whitelist attacker] *********************************************************
 
@@ -272,7 +272,15 @@ PLAY RECAP *********************************************************************
 checkpoint  : ok=4 changed=3 unreachable=0 failed=0 skipped=0 rescued=0 ignored=0
 ```
 
-## Step 2.7 - Verfiy changes in UI
+> **Note**: You might be given a warning message, please notice the ignoring and continue.
+```
+TASK [Install policy] ************************************************************************************************
+fatal: [checkpoint]: FAILED! => changed=false
+  msg: 'Checkpoint device returned error 409 with message {u''message'': u''A policy installation is currently in progress.'', u''code'': u''err_policy_installation_failed''}'
+...ignoring
+```
+
+## Step 2.7 - Verify changes in UI
 
 Now it's time to check if the changes really did take place, if the actual Check Point MGMT server configuration was really altered.
 
