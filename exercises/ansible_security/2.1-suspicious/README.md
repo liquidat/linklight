@@ -156,7 +156,7 @@ Now add again the existing playbook `triage_log_sources.yml` where we already br
 - name: Configure Check Point to send logs to QRadar
   hosts: checkpoint
 
-  tasks: 
+  tasks:
     - include_role:
         name: ansible_security.log_manager
         tasks_from: forward_logs_to_syslog
@@ -244,7 +244,7 @@ If you bring all these pieces together, the full playbook `triage_log_sources.ym
 - name: Configure Check Point to send logs to QRadar
   hosts: checkpoint
 
-  tasks: 
+  tasks:
     - include_role:
         name: ansible_security.log_manager
         tasks_from: forward_logs_to_syslog
@@ -290,6 +290,33 @@ Run the full playbook to add both log sources to QRadar:
 >
 > Should you run into a timeout with the very last task, then the deploy on the QRadar instance took longer than the warning timeout. This can happen given the limited demo resources, but is of no concern to us and thus ignored.
 
+> **Note**: such timeout error can look intimidating, no worries!
+```
+TASK [deploy the new log source] *************************************************************************************
+An exception occurred during task execution. To see the full traceback, use -vvv. The error was: KeyError: 'message'
+fatal: [qradar]: FAILED! => changed=false
+  module_stderr: |-
+    Traceback (most recent call last):
+      File "/home/student1/.ansible/tmp/ansible-local-1590Q2hs4p/ansible-tmp-1569320733.15-219221843565977/AnsiballZ_qradar_deploy.py", line 102, in <module>
+        _ansiballz_main()
+      File "/home/student1/.ansible/tmp/ansible-local-1590Q2hs4p/ansible-tmp-1569320733.15-219221843565977/AnsiballZ_qradar_deploy.py", line 94, in _ansiballz_main
+        invoke_module(zipped_mod, temp_path, ANSIBALLZ_PARAMS)
+      File "/home/student1/.ansible/tmp/ansible-local-1590Q2hs4p/ansible-tmp-1569320733.15-219221843565977/AnsiballZ_qradar_deploy.py", line 40, in invoke_module
+        runpy.run_module(mod_name='ansible_collections.ibm.qradar.plugins.modules.qradar_deploy', init_globals=None, run_name='__main__', alter_sys=False)
+      File "/usr/lib64/python2.7/runpy.py", line 180, in run_module
+        fname, loader, pkg_name)
+      File "/usr/lib64/python2.7/runpy.py", line 72, in _run_code
+        exec code in run_globals
+      File "/tmp/ansible_qradar_deploy_payload_eTn1zR/ansible_qradar_deploy_payload.zip/ansible_collections/ibm/qradar/plugins/modules/qradar_deploy.py", line 89, in <module>
+      File "/tmp/ansible_qradar_deploy_payload_eTn1zR/ansible_qradar_deploy_payload.zip/ansible_collections/ibm/qradar/plugins/modules/qradar_deploy.py", line 74, in main
+    KeyError: 'message'
+  module_stdout: ''
+  msg: |-
+    MODULE FAILURE
+    See stdout/stderr for the exact error
+  rc: 1
+```
+
 ## Step 1.6 - Verify the log source configuration
 
 Before that Ansible playbook was invoked, QRadar wasn’t receiving any data from Snort or Check Point. Immediately after, without any further intervention by us as security analyst, Check Point logs start to appear in the QRadar log overview.
@@ -306,7 +333,7 @@ Now the list of logs is better to analyze. Verify that events are making it to Q
 
 Also, if you change the **View** from **Real Time** to for example **Last 5 Minutes** you can even click on individual events to see more details of the data the firewall sends you.
 
-Let's verify that QRadar also properly shows the log source. In the QRadar UI, click on the burger menu in the left upper corner, and click on **Admin**. In there, click on **Log Souces**. A new window opens and shows the new log sources.
+Let's verify that QRadar also properly shows the log source. In the QRadar UI, click on the burger menu in the left upper corner, and click on **Admin**. In there, click on **Log Sources**. A new window opens and shows the new log sources.
 
 ![QRadar Log Sources](images/qradar_log_sources.png)
 
@@ -327,7 +354,7 @@ Let's also verify that the Snort configuration in the background was successful.
 [student<X>@ansible ~]$ ssh ec2-user@22.33.44.55
 Last login: Wed Sep 11 15:45:00 2019 from 11.22.33.44
 [ec2-user@ip-172-16-11-222 ~]$ sudo -i
-[root@ip-172-16-11-222 ~]# cat /etc/rsyslog.d/ids_confg_snort_rsyslog.conf 
+[root@ip-172-16-11-222 ~]# cat /etc/rsyslog.d/ids_confg_snort_rsyslog.conf
 $ModLoad imfile
 $InputFileName /var/log/snort/merged.log
 $InputFileTag ids-config-snort-alert
@@ -363,7 +390,7 @@ In the previous Snort exercise we already added a Snort rule with a signature to
     source_port: any
     source_ip: any
     dest_port: any
-    dest_ip: any    
+    dest_ip: any
 
   tasks:
     - name: Add snort web attack rule
@@ -445,7 +472,7 @@ We create a new playbook, `rollback.yml`, based on the `triage_log_sources.yml`.
 - name: Configure Check Point to not send logs to QRadar
   hosts: checkpoint
 
-  tasks: 
+  tasks:
     - include_role:
         name: ansible_security.log_manager
         tasks_from: unforward_logs_to_syslog
