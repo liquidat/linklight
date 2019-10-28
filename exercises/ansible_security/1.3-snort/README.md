@@ -1,4 +1,4 @@
-# Exercise 1.3 - Executing the first Snort playbook
+Exercise 1.3 - Executing the first Snort playbook
 
 ## Step 3.1 - Snort
 
@@ -11,7 +11,7 @@ In this lab, Snort is installed on a Red Hat Enterprise Linux machine. Ansible i
 The Snort software is installed on a typical Red Hat Enterprise Linux system. Thus access to the server is performed via SSH. On you control host `ansible`, open your inventory again and find the IP address of you Snort server. This can also be done in one go with a single command:
 
 ```bash
-[student<X>@ansible ~]$ grep snort ~/lab_inventory/hosts 
+[student<X>@ansible ~]$ grep snort ~/lab_inventory/hosts
 snort ansible_host=22.333.44.5 ansible_user=ec2-user private_ip=172.16.1.2
 ```
 
@@ -25,7 +25,7 @@ Knowing this IP address, you can now access the Snort server. Note that the user
 [student<X>@ansible ~]$ ssh ec2-user@22.333.44.5
 Warning: Permanently added '22.333.44.5' (ECDSA) to the list of known hosts.
 Last login: Mon Aug 26 12:17:48 2019 from h-213.61.244.2.host.de.colt.net
-[ec2-user@ip-172-16-1-2 ~]$ 
+[ec2-user@ip-172-16-1-2 ~]$
 ```
 
 Verify that snort is installed and configured properly by calling it via sudo and let it output the version:
@@ -34,7 +34,7 @@ Verify that snort is installed and configured properly by calling it via sudo an
 [ec2-user@ip-172-16-1-2 ~]$ sudo snort --version
 
    ,,_     -*> Snort! <*-
-  o"  )~   Version 2.9.13 GRE (Build 15013) 
+  o"  )~   Version 2.9.13 GRE (Build 15013)
    ''''    By Martin Roesch & The Snort Team: http://www.snort.org/contact#team
            Copyright (C) 2014-2019 Cisco and/or its affiliates. All rights reserved.
            Copyright (C) 1998-2013 Sourcefire, Inc., et al.
@@ -55,6 +55,8 @@ Also, check if the service is actively running via `sudo systemctl`:
            └─17217 /usr/sbin/snort -u root -g root -c /etc/snort/snort.conf -i eth0 -p -R 1 --pid-path=/var/run/snort --no-interface-pidfile --nolock-pidfile
 [...]
 ```
+
+If the server is not running for whatever reason, restart it via `sudo systemctl restart snort`, wait a few moments, and verify that it is running via the command above
 
 Exit the Snort server now by pressing `CTRL` and `D`, or by typing `exit` on the command line. All further interaction will be done via Ansible from the Ansible control host.
 
@@ -177,7 +179,7 @@ The other variables set the rules file a the user defined location and set that 
 It is now time to execute the playbook. Call `ansible-playbook` with the playbook name:
 
 ```bash
-[student1@ansible ~]$ ansible-playbook add_snort_rule.yml 
+[student1@ansible ~]$ ansible-playbook add_snort_rule.yml
 
 PLAY [Add Snort rule] *****************************************************************
 
@@ -289,7 +291,7 @@ Last but not least we want to see what was actually found. The `ids_rule_facts` 
 Now let's execute the playbook to verify that our rule is indeed part of the Snort installation:
 
 ```bash
-[student<X>@ansible ~]$ ansible-playbook verify_attack_rule.yml 
+[student<X>@ansible ~]$ ansible-playbook verify_attack_rule.yml
 
 PLAY [Verify Snort rule] **************************************************************
 
@@ -300,9 +302,9 @@ TASK [ansible_security.ids_rule_facts : collect snort facts] *******************
 ok: [snort]
 
 TASK [debugoutput rules facts] ********************************************************
-ok: [snort] => 
+ok: [snort] =>
   ansible_facts.ids_rules:
-  - alert tcp and any -> any any (msg:"Attempted /etc/passwd Attack"; 
+  - alert tcp and any -> any any (msg:"Attempted /etc/passwd Attack";
   uricontent:"/etc/passwd"; classtype:attempted-user; sid:99000004; priority:1; rev:1;)
 
 PLAY RECAP ****************************************************************************
