@@ -241,7 +241,7 @@ The last task ensures that the policy is installed in any case. Since this task 
 
 ## Step 2.6 - Run the playbook
 
-Playbooks are executed using the `ansible-playbook` command on the control node. Before you run a new playbook it’s a good idea to check for syntax errors:
+Playbooks are executed using the `ansible-playbook` command on the control node. Before you run a new playbook, it’s a good idea to check for syntax errors:
 
 ```bash
 [student<X>@ansible ansible-files]$ ansible-playbook --syntax-check whitelist_attacker.yml
@@ -272,7 +272,7 @@ checkpoint  : ok=4 changed=3 unreachable=0 failed=0 skipped=0 rescued=0 ignored=
 
 ## Step 2.7 - Verify changes in UI
 
-Now it's time to check if the changes really did take place, if the actual Check Point MGMT server configuration was really altered.
+Now it's time to check if these changes did really take place and the Check Point MGMT server configuration is altered.
 
 Access the Windows workstation and open the SmartConsole interface. On the right side, underneath **Object Categories**, click on **Network Objects**, then pick **Hosts**. It should list both new host entries.
 
