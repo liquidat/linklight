@@ -168,7 +168,7 @@ As you can see, the task itself has a name - just like the play itself - and ref
 
 > **Tip**
 >
-> In `ansible-doc` leave by pressing the button `q`. Use the `up`/`down` arrows to scroll through the content.
+> In `ansible-doc` you can use the `up`/`down` arrows to scroll through the content and the button `q` to quit and exit.
 
 In the same way we defined the source IP host object, we will now add the destination IP host object:
 
