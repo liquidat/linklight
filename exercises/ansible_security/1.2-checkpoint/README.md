@@ -237,7 +237,7 @@ Last, we are defining the actual access rule between those two host objects:
 ```
 <!-- {% endraw %} -->
 
-The last task ensures that the policy is installed in any case. Since sometimes this task fails if another installations is already running we ignore possible errors here.
+The last task ensures that the policy is installed in any case. Since this task could fail if other installations are already running, therefore we ignore possible errors here.
 
 ## Step 2.6 - Run the playbook
 
