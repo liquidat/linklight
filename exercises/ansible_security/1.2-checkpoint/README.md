@@ -138,7 +138,7 @@ For this, we add the source and destination IP as variables to the playbook. Sin
 
 Note that we use the second private IP - those belong to a network which is specifically routed via the FW for application traffic. The first private IP belongs to the management network.
 
-Next, we need to add the tasks where the actual changes on the target machines are done. This happens in three steps: first we create a source object, than a destination object, and finally the access rule between those two.
+Next, we need to add the tasks where the actual changes on the target machines are done. This happens in three steps: first we create a source object, then a destination object, and finally the access rule between those two.
 
 Let's start with a task to define the source object:
 
