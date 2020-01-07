@@ -57,7 +57,7 @@ Press the **Login** button. Afterwards you need to verify the server fingerprint
 
 > **Note**
 >
-> In a productive environment, you would first figure out the fingerprint of the server and would only proceed after you confirmed that the fiungerprint shown is identical with the one from the server. In our demo setup with the short lived instances we can assume that the fingerprints are good.
+> In a production environment, you would first figure out the fingerprint of the server and would only proceed after you confirmed that the fiungerprint shown is identical with the one from the server. In our demo setup with the short lived instances we can assume that the fingerprints are good.
 
 You are now viewing the Check Point SmartConsole management interface. There might be a Internet Explorer Warning visible upon start. This can safely be closed and is due to limitations in the way IE works.
 
@@ -136,7 +136,7 @@ For this, we add the source and destination IP as variables to the playbook. Sin
 ```
 <!-- {% endraw %} -->
 
-Note that we use the second private IP - those belong to a network whihc is specifically routed via the FW for application traffic. The first private IP belongs to the management network.
+Note that we use the second private IP - those belong to a network which is specifically routed via the FW for application traffic. The first private IP belongs to the management network.
 
 Next, we need to add the tasks where the actual changes on the target machines are done. This happens in three steps: first we create a source object, than a destination object, and finally the access rule between those two.
 
