@@ -12,6 +12,9 @@ bak/
 *.pem
 instructor_inventory.txt
 provisioner/tower_license.json
+provisioner/cyberark_license.xml
+provisioner/recpub.key
+provisioner/Client-Rls-v11.1.zip
 network_vars.yml
 ansible/
 *.box

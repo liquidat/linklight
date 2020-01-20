@@ -22,13 +22,13 @@
     - name: RESCUE RETRY - Import EC2 Tags Tasks
       import_tasks: security_includes/security_ec2_tags.yml
 
-- name: Create EC2 Subnet2 ENI - SECURITY MODE
-  block:
-    - name: Import EC2 Subnet2 ENI
-      import_tasks: security_includes/security_ec2_subnet2_eni.yml
-  rescue:
-    - name: RESCUE RETRY - Import EC2 Subnet2 ENI
-      import_tasks: security_includes/security_ec2_subnet2_eni.yml
+# - name: Create EC2 Subnet2 ENI - SECURITY MODE
+#   block:
+#     - name: Import EC2 Subnet2 ENI
+#       import_tasks: security_includes/security_ec2_subnet2_eni.yml
+#   rescue:
+#     - name: RESCUE RETRY - Import EC2 Subnet2 ENI
+#       import_tasks: security_includes/security_ec2_subnet2_eni.yml
 
 
 ###############################################################################
@@ -41,10 +41,10 @@
 # limited availability to modify the instance after creation (in testing we
 # found that even rebooting the instance with new ENIs attached did not cause
 # them to be added.
-- name: Create EC2 Check Point GW with ENI bookkeeping- SECURITY MODE
-  block:
-    - name: Import Check Point GW ENI Bookkeeping
-      import_tasks: security_includes/security_ec2_checkpoint_gw_eni_bookkeeping.yml
-  rescue:
-    - name: RESCUE RETRY - Import Check Point GW ENI Bookkeeping
-      import_tasks: security_includes/security_ec2_checkpoint_gw_eni_bookkeeping.yml
+# - name: Create EC2 Check Point GW with ENI bookkeeping- SECURITY MODE
+#   block:
+#     - name: Import Check Point GW ENI Bookkeeping
+#       import_tasks: security_includes/security_ec2_checkpoint_gw_eni_bookkeeping.yml
+#   rescue:
+#     - name: RESCUE RETRY - Import Check Point GW ENI Bookkeeping
+#       import_tasks: security_includes/security_ec2_checkpoint_gw_eni_bookkeeping.yml

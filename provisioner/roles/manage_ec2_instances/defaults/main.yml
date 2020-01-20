@@ -59,6 +59,20 @@ ec2_info:
     size: c5.large
     ami: "{{ checkpoint_gw_ami| default(omit) }}"
     username: admin
+  cyberark_vault:
+    filter: 'Windows_Server-2016-English-Full-Base*'
+    size: t3.medium
+    ami: "{{ cyberark_vault_ami| default(omit) }}"
+    username: Administrator
+  cyberark_psm:
+    filter: 'Windows_Server-2019-English-Core-Base*'
+    size: t3.medium
+  cyberark_cpm:
+    filter: 'Windows_Server-2019-English-Core-Base*'
+    size: t3.medium
+  cyberark_pvwa:
+    filter: 'Windows_Server-2019-English-Core-Base*'
+    size: t3.medium
   windows_ws:
     owners: 679593333241
     filter: 'Windows_Server-2016-English-Full-Base*'

@@ -1,0 +1,35 @@
+<powershell>
+# define license file
+$VAULTLICENSE=@"
+{{ lookup('file',playbook_dir+'/cyberark_license.xml') }}
+"@
+
+# write license file to disk
+$VAULTLICENSE | Out-File c:\\\\vaultLicense.xml
+
+# create empty recpubkey file
+New-Item -ItemType file c:\\\\recoveryPublic.key
+
+Add-Content -Path c:\\\\recoveryPublic.key -AsByteStream -Value {{ lookup('file',playbook_dir+'/recpub.key') }}
+
+# define deployment script
+$DEPLOYPY=@"
+import sys
+import subprocess
+
+masterp = {{ admin_password }}
+adminp =  {{ admin_password }}
+
+licensef = C:\\\\vaultLicense.xml
+
+publickeyf = C:\\\\recoveryPublic.key
+  
+sys.exit(subprocess.call(['C:\\\\Program files (x86)\\\\PrivateArk\\\\Server\\\\CAVaultManager.exe','PostInstall','/AdminPass',adminp,'/MasterPass',masterp,'/RecPub',publickeyf,'/IsPrimaryOrDR','Primary','/PrimaryVaultIP','1.1.1.1','/DRPassword',adminp,'/EnableFailOver','/LicensePath',licensef,'/AcceptEULA','yes','/CloudRegion','{{ ec2_region }}','/CloudVendor','AWS']))
+"@
+
+# write deployment script to disk
+$DEPLOYPY | Out-File c:\\\\deploy.py
+
+# execute deployment script
+C:\\Python27\\python.exe C:\\deploy.py
+</powershell>
