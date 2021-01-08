@@ -29,7 +29,7 @@
 
 - name: make sure DNS name is 65 characters or less
   vars:
-    test_name: "studentXXX-code.{{ec2_name_prefix|lower}}.{{workshop_dns_zone}}"
+    test_name: "studentXXX-code.{{ibmis_name_prefix|lower}}.{{workshop_dns_zone}}"
   assert:
     that:
       - "{{test_name|length}} <= 65"
@@ -46,9 +46,9 @@
 - name: make sure we are not running with TESTWORKSHOP as the name so no overlap
   assert:
     that:
-      - ec2_name_prefix != "TESTWORKSHOP"
+      - ibmis_name_prefix != "TESTWORKSHOP"
     msg:
-      - "ec2_name_prefix cannot be set to TESTWORKSHOP"
+      - "ibmis_name_prefix cannot be set to TESTWORKSHOP"
       - "please set a unique name for your workshop"
 
 - name: make sure we are not using `ansible` as the password

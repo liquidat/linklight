@@ -14,6 +14,7 @@ workshop_type: ""
 dns_type: aws
 valid_dns_type:
   - aws
+  - ibmdns
   - none
 valid_workshop_types:
   - network
