@@ -1,18 +1,20 @@
 ---
-- name: ensure workshop folder {{ ec2_name_prefix }} exists
+- name: ensure workshop folder {{ ibmis_name_prefix }} exists
   file:
-    path: "{{ playbook_dir }}/{{ ec2_name_prefix }}"
+    path: "{{ playbook_dir }}/{{ ibmis_name_prefix }}"
     state: directory
 
-## These AWS resources are used for every workshop type
+## These Cloud resources are used for every workshop type
 ## This includes VPC, subnet, Security Group, Internet Gateway and route table
-## TODO: check if needed in IBM cloud
+## TODO: adopt for IBM cloud
 - name: provision IBM cloud resources
   include_tasks: resources/resources.yml
 
-## TODO: figure out a way to get the id for the "ibm_is_instance" module
+## TODO: figure out a way to get the "image"" for the "ibm_is_instance" module
+## TODO: compare with example here: https://github.com/IBM-Cloud/ansible-collection-ibm/blob/3b7c95bfa1b3a3821b38366ee6f5756e90740ee7/examples/simple-vm-ssh/create.yml#L50-L52
+## TODO: check if "ibm_is_images_info" is the right module here or another one is better
 - name: find ami for ansible control node
-  ec2_ami_info:
+  ibm_is_images_info:
     region: "{{ ec2_region }}"
     owners: "{{ ec2_info[control_type].owners }}"
     filters:
@@ -20,6 +22,7 @@
       architecture: "{{ ec2_info[control_type].architecture }}"
   register: amis
 
+# TODO: compare to https://github.com/IBM-Cloud/ansible-collection-ibm/blob/master/examples/simple-vm-ssh/create.yml#L54-L58
 - name: save ami for ansible control node
   set_fact:
     ansible_control_node_ami: >

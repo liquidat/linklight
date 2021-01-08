@@ -2,10 +2,10 @@
 ## TODO: let IBM cloud list all machines we just created
 - name: grab facts for control_nodes
   ec2_instance_info:
-    region: "{{ ec2_region }}"
+    region: "{{ ibmis_region }}"
     filters:
       instance-state-name: running
-      "tag:Workshop_ansible": "{{ec2_name_prefix}}-ansible*"
+      "tag:Workshop_ansible": "{{ibmis_name_prefix}}-ansible*"
   register: ansible_node_facts
 
 ## TODO: take list from above and read it in
@@ -18,7 +18,7 @@
     ansible_host: "{{ item.public_ip_address }}"
     ansible_user: "{{ item.tags.username }}"
     ansible_port: "{{ ssh_port }}"
-    ansible_ssh_private_key_file: "{{ playbook_dir }}/{{ec2_name_prefix}}/{{ec2_name_prefix}}-private.pem"
+    ansible_ssh_private_key_file: "{{ playbook_dir }}/{{ibmis_name_prefix}}/{{ibmis_name_prefix}}-private.pem"
     private_ip: "{{item.private_ip_address}}"
     groups:
       - control_nodes
@@ -31,16 +31,16 @@
 - name: Generate student inventories
   template:
     src: "student_inventory/instances_{{workshop_type}}.j2"
-    dest: "{{ playbook_dir }}/{{ec2_name_prefix}}/student{{item}}-instances.txt"
+    dest: "{{ playbook_dir }}/{{ibmis_name_prefix}}/student{{item}}-instances.txt"
   with_sequence: count="{{ student_total }}"
 
 - name: Generate student etchosts
   template:
     src: "etchosts/etchosts_{{workshop_type}}.j2"
-    dest: "{{ playbook_dir }}/{{ec2_name_prefix}}/student{{item}}-etchosts.txt"
+    dest: "{{ playbook_dir }}/{{ibmis_name_prefix}}/student{{item}}-etchosts.txt"
   with_sequence: count="{{ student_total }}"
 
 - name: Generate instructor inventory
   template:
     src: "instructor_inventory/instructor_inventory_{{workshop_type}}.j2"
-    dest: "{{ playbook_dir }}/{{ec2_name_prefix}}/instructor_inventory.txt"
+    dest: "{{ playbook_dir }}/{{ibmis_name_prefix}}/instructor_inventory.txt"
