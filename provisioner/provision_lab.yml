@@ -9,10 +9,6 @@
       include_role:
         name: workshop_check_setup
 
-    - name: run AWS check setup if using AWS
-      include_role:
-        name: aws_check_setup
-
 - name: Create lab instances in IBM Cloud
   hosts: localhost
   connection: local
